@@ -1,0 +1,16 @@
+{
+  "files": {
+    "main.css": "/monevo/static/css/main.83295dc9.css",
+    "main.js": "/monevo/static/js/main.24dbbaba.js",
+    "static/js/453.8ab44547.chunk.js": "/monevo/static/js/453.8ab44547.chunk.js",
+    "static/media/monevo.png": "/monevo/static/media/monevo.e5979e74d99c46808d02.png",
+    "index.html": "/monevo/index.html",
+    "main.83295dc9.css.map": "/monevo/static/css/main.83295dc9.css.map",
+    "main.24dbbaba.js.map": "/monevo/static/js/main.24dbbaba.js.map",
+    "453.8ab44547.chunk.js.map": "/monevo/static/js/453.8ab44547.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.83295dc9.css",
+    "static/js/main.24dbbaba.js"
+  ]
+}
