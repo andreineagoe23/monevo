@@ -23,8 +23,11 @@ import ForgotPassword from "components/auth/ForgotPassword";
 import ResetPassword from "components/auth/ResetPassword";
 import RewardsPage from "components/rewards/RewardsPage";
 import FAQPage from "components/support/FAQPage";
+import FunnelDashboard from "analytics/FunnelDashboard";
 import { ThemeProvider } from "contexts/ThemeContext";
 import { AuthProvider } from "contexts/AuthContext";
+import { FeatureFlagProvider } from "contexts/FeatureFlagContext";
+import { AnalyticsProvider } from "contexts/AnalyticsContext";
 import ProtectedRoute from "components/auth/ProtectedRoute";
 import ExercisePage from "components/exercises/ExercisePage";
 import PaymentRequired from "components/billing/PaymentRequired";
@@ -76,15 +79,17 @@ const AppContent = () => {
 
   return (
     <AuthProvider>
-      <ThemeProvider>
-        <div
-          className={[
-            "app-container",
-            noChatbotPaths.includes(location.pathname) ? "nochatbot" : "",
-          ]
-            .join(" ")
-            .trim()}
-        >
+      <FeatureFlagProvider>
+        <AnalyticsProvider>
+          <ThemeProvider>
+            <div
+              className={[
+                "app-container",
+                noChatbotPaths.includes(location.pathname) ? "nochatbot" : "",
+              ]
+                .join(" ")
+                .trim()}
+            >
           {hasNavbar && <Navbar />}
 
           <div className="app-layout w-full p-0">
@@ -191,6 +196,14 @@ const AppContent = () => {
                     </ProtectedRoute>
                   }
                 />
+                <Route
+                  path="/analytics"
+                  element={
+                    <ProtectedRoute>
+                      <FunnelDashboard />
+                    </ProtectedRoute>
+                  }
+                />
                 <Route path="/welcome" element={<Welcome />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route
@@ -227,7 +240,9 @@ const AppContent = () => {
             {!noChatbotPaths.includes(location.pathname) && <Chatbot />}
           </div>
         </div>
-      </ThemeProvider>
+          </ThemeProvider>
+        </AnalyticsProvider>
+      </FeatureFlagProvider>
     </AuthProvider>
   );
 };

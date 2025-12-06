@@ -12,8 +12,9 @@ urlpatterns = [
     path('api/', include('education.urls')),
     path('api/', include('gamification.urls')),
     path('api/', include('finance.urls')),
+    path('api/analytics/', include('analytics.urls')),
     path('api/', include('support.urls')),
 ]
 
-if settings.DEBUG: 
+if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

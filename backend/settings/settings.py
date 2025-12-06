@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     "education",
     "gamification",
     "finance",
+    "analytics",
     "support",
     # Legacy core app (to be removed after full migration)
     "core",

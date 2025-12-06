@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import axios from "axios";
 import { useAuth } from "contexts/AuthContext";
+import { useAnalytics } from "contexts/AnalyticsContext";
+import { useFeatureFlags } from "contexts/FeatureFlagContext";
 import { useNavigate } from "react-router-dom";
 import { GlassCard } from "components/ui";
 
@@ -20,6 +22,8 @@ const ExercisePage = () => {
   });
   const [categories, setCategories] = useState([]);
   const { getAccessToken, isInitialized, isAuthenticated } = useAuth();
+  const { trackEvent, sessionId } = useAnalytics();
+  const { flags } = useFeatureFlags();
   const navigate = useNavigate();
   const [streak, setStreak] = useState(0);
   const [showStats, setShowStats] = useState(false);
@@ -35,8 +39,12 @@ const ExercisePage = () => {
   const [timeRemaining, setTimeRemaining] = useState(0);
   const [bestTime] = useState(null);
   const timerRef = useRef(null);
+  const feedbackTimeoutRef = useRef(null);
   const [savedAnswers, setSavedAnswers] = useState({});
   const [isRetrying, setIsRetrying] = useState(false);
+  const [showHint, setShowHint] = useState(false);
+  const [isRevealingFeedback, setIsRevealingFeedback] = useState(false);
+  const startedExercisesRef = useRef(new Set());
 
   const fetchExercises = useCallback(async () => {
     try {
@@ -132,6 +140,24 @@ const ExercisePage = () => {
   }, [exercises, currentExerciseIndex]);
 
   useEffect(() => {
+    const exercise = exercises[currentExerciseIndex];
+    if (!exercise || !exercise.id) return;
+
+    setShowHint(false);
+
+    if (startedExercisesRef.current.has(exercise.id)) {
+      return;
+    }
+
+    startedExercisesRef.current.add(exercise.id);
+    trackEvent("start", exercise.id, {
+      variant: flags.variant,
+      sessionId,
+      position: currentExerciseIndex,
+    });
+  }, [currentExerciseIndex, exercises, flags.variant, sessionId, trackEvent]);
+
+  useEffect(() => {
     if (isTimedMode) {
       const baseTime = 300;
       const timePerExercise = 30;
@@ -156,6 +182,9 @@ const ExercisePage = () => {
       if (timerRef.current) {
         clearInterval(timerRef.current);
       }
+      if (feedbackTimeoutRef.current) {
+        clearTimeout(feedbackTimeoutRef.current);
+      }
     };
   }, [isTimedMode, exercises.length]);
 
@@ -177,7 +206,24 @@ const ExercisePage = () => {
 
     setShowCorrection(false);
     setExplanation("");
+    setShowHint(false);
+    if (feedbackTimeoutRef.current) {
+      clearTimeout(feedbackTimeoutRef.current);
+      feedbackTimeoutRef.current = null;
+    }
     setIsRetrying(false);
+  };
+
+  const handleHint = () => {
+    const exercise = exercises[currentExerciseIndex];
+    if (!exercise) return;
+
+    setShowHint(true);
+    trackEvent("hint", exercise.id, {
+      variant: flags.variant,
+      cost: flags.hintCost,
+      sessionId,
+    });
   };
 
   const handleSubmit = async () => {
@@ -209,10 +255,30 @@ const ExercisePage = () => {
 
       setProgress(updated);
       setExplanation(response.data.explanation || "");
-      setShowCorrection(true);
+
+      if (feedbackTimeoutRef.current) {
+        clearTimeout(feedbackTimeoutRef.current);
+      }
+
+      if (flags.feedbackDelayMs > 0) {
+        setIsRevealingFeedback(true);
+        feedbackTimeoutRef.current = setTimeout(() => {
+          setShowCorrection(true);
+          setIsRevealingFeedback(false);
+        }, flags.feedbackDelayMs);
+      } else {
+        setShowCorrection(true);
+        setIsRevealingFeedback(false);
+      }
 
       if (response.data.correct) {
         setStreak((prev) => prev + 1);
+        trackEvent("complete", currentExercise.id, {
+          attempts: response.data.attempts,
+          variant: flags.variant,
+          timed: isTimedMode,
+          sessionId,
+        });
       } else {
         setStreak(0);
       }
@@ -241,12 +307,25 @@ const ExercisePage = () => {
       }
     } catch (err) {
       setError("Submission failed. Please try again.");
+      const failedExercise = exercises[currentExerciseIndex];
+      if (failedExercise) {
+        trackEvent("error", failedExercise.id, {
+          message: err?.response?.data?.error || err.message,
+          variant: flags.variant,
+          sessionId,
+        });
+      }
     }
   };
 
   const handleNext = () => {
     setShowCorrection(false);
     setExplanation("");
+    setIsRevealingFeedback(false);
+    if (feedbackTimeoutRef.current) {
+      clearTimeout(feedbackTimeoutRef.current);
+      feedbackTimeoutRef.current = null;
+    }
     if (currentExerciseIndex < exercises.length - 1) {
       setCurrentExerciseIndex((prev) => prev + 1);
     }
@@ -420,6 +499,11 @@ const ExercisePage = () => {
     );
   }
 
+  const currentExercise = exercises[currentExerciseIndex];
+  const hintText =
+    currentExercise?.hint ||
+    "Focus on the key principle in the question and eliminate options that don't align.";
+
   const progressPercent = exercises.length
     ? Math.round(((currentExerciseIndex + 1) / exercises.length) * 100)
     : 0;
@@ -551,6 +635,12 @@ const ExercisePage = () => {
               </div>
             )}
 
+            <div className="mt-4 text-xs text-[color:var(--muted-text,#6b7280)]">
+              Feedback {flags.feedbackDelayMs ? `appears after ${flags.feedbackDelayMs / 1000}s` : "is instant"}. Hints cost
+              {" "}
+              {flags.hintCost || 0} and skipping costs {flags.skipCost || 0}.
+            </div>
+
             <div className="pt-6">{renderExercise()}</div>
 
             {showCorrection && explanation && (
@@ -607,15 +697,36 @@ const ExercisePage = () => {
                   </div>
                 </div>
               ) : (
-                <button
-                  type="button"
-                  onClick={handleSubmit}
-                  className="inline-flex items-center justify-center rounded-full bg-[color:var(--primary,#2563eb)] px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-[color:var(--primary,#2563eb)]/30 transition hover:shadow-xl hover:shadow-[color:var(--primary,#2563eb)]/40 focus:outline-none focus:ring-2 focus:ring-[color:var(--accent,#2563eb)]/40"
-                >
-                  Submit Answer
-                </button>
+                <div className="flex flex-wrap items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={handleSubmit}
+                    disabled={isRevealingFeedback}
+                    className="inline-flex items-center justify-center rounded-full bg-[color:var(--primary,#2563eb)] px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-[color:var(--primary,#2563eb)]/30 transition hover:shadow-xl hover:shadow-[color:var(--primary,#2563eb)]/40 focus:outline-none focus:ring-2 focus:ring-[color:var(--accent,#2563eb)]/40 disabled:opacity-50"
+                  >
+                    {isRevealingFeedback ? "Processing..." : "Submit Answer"}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleHint}
+                    className="inline-flex items-center justify-center rounded-full border border-[color:var(--border-color,#d1d5db)] px-5 py-3 text-sm font-semibold text-[color:var(--text-color,#111827)] transition hover:border-[color:var(--accent,#2563eb)]/40 hover:text-[color:var(--accent,#2563eb)] focus:outline-none focus:ring-2 focus:ring-[color:var(--accent,#2563eb)]/40"
+                  >
+                    Request Hint{flags.hintCost ? ` (-${flags.hintCost})` : ""}
+                  </button>
+
+                  <span className="text-xs text-[color:var(--muted-text,#6b7280)]">
+                    Skipping costs {flags.skipCost || 0} — choose wisely.
+                  </span>
+                </div>
               )}
             </div>
+
+            {showHint && (
+              <div className="rounded-2xl border border-[color:var(--accent,#2563eb)]/30 bg-[color:var(--accent,#2563eb)]/10 px-4 py-3 text-sm text-[color:var(--accent,#2563eb)]">
+                💭 Hint: {hintText}
+              </div>
+            )}
           </GlassCard>
 
           <GlassCard padding="lg" className="w-full lg:w-80">

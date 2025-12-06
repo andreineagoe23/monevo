@@ -11,6 +11,7 @@ const NAV_ITEMS = [
   { path: "/exercises", label: "Exercises", icon: "💪" },
   { path: "/missions", label: "Missions", icon: "🎯" },
   { path: "/tools", label: "Tools", icon: "🛠️" },
+  { path: "/analytics", label: "Analytics", icon: "📈" },
   { path: "/rewards", label: "Rewards", icon: "🎁" },
   { path: "/faq", label: "FAQ", icon: "❓" },
   { path: "/profile", label: "Profile", icon: "👤" },
