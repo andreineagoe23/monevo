@@ -39,6 +39,10 @@ jest.mock("axios", () => ({
 jest.mock("@tanstack/react-query", () => ({
   __esModule: true,
   useQuery: (...args) => mockUseQuery(...args),
+  useQueryClient: () => ({
+    setQueryData: jest.fn(),
+    invalidateQueries: jest.fn(),
+  }),
 }));
 
 jest.mock("services/userService", () => ({
@@ -51,7 +55,12 @@ jest.mock("services/httpClient", () => ({
 
 jest.mock("./AllTopics", () => ({
   __esModule: true,
-  default: () => null,
+  default: ({ navigationControls }) => (
+    <div>
+      <h3>All Topics Mock</h3>
+      {navigationControls}
+    </div>
+  ),
 }));
 
 jest.mock("./PersonalizedPath", () => ({
@@ -64,6 +73,16 @@ const Dashboard = require("./Dashboard").default;
 describe("Dashboard personalized path CTA", () => {
   beforeEach(() => {
     mockNavigate.mockClear();
+    window.matchMedia = jest.fn().mockImplementation((query) => ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener: jest.fn(),
+      removeListener: jest.fn(),
+      addEventListener: jest.fn(),
+      removeEventListener: jest.fn(),
+      dispatchEvent: jest.fn(),
+    }));
     mockUseQuery.mockImplementation(({ queryKey }) => {
       if (queryKey?.[0] === "profile") {
         return { data: mockProfileResponse, isLoading: false };
@@ -77,7 +96,7 @@ describe("Dashboard personalized path CTA", () => {
   });
 
   it("routes to questionnaire when personalization is incomplete", () => {
-    mockProfileResponse = { is_questionnaire_completed: false };
+    mockProfileResponse = { is_questionnaire_completed: false, has_paid: false };
 
     render(<Dashboard />);
 
@@ -87,7 +106,7 @@ describe("Dashboard personalized path CTA", () => {
   });
 
   it("routes to personalized path when questionnaire is finished", () => {
-    mockProfileResponse = { is_questionnaire_completed: true };
+    mockProfileResponse = { is_questionnaire_completed: true, has_paid: true };
 
     render(<Dashboard />);
 
