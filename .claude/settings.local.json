@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(curl -s \"https://raw.githubusercontent.com/DavidHDev/react-bits/main/src/content/Animations/SplashCursor/SplashCursor.jsx\" -o /tmp/SplashCursor.jsx)",
+      "Read(//tmp/**)"
+    ]
+  }
+}

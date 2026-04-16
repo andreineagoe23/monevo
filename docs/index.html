@@ -4,26 +4,60 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Dark mode: apply .dark class before paint to prevent FOUC -->
+    <script>
+      (function () {
+        try {
+          var saved = localStorage.getItem("monevo-theme");
+          if (saved === "light") {
+            document.documentElement.classList.remove("dark");
+          } else {
+            // Default: dark
+            document.documentElement.classList.add("dark");
+          }
+        } catch (e) {}
+      })();
+    </script>
+
+    <!-- Preconnect to font origins so they load in parallel -->
+    <link rel="preconnect" href="https://api.fontshare.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <!-- SEO -->
     <meta
       name="description"
-      content="Monevo — Craft web design and custom development for local businesses. Built for clarity, performance, and the long term, by Andrei Neagoe."
+      content="Monevo — Handcrafted web design and custom development for local businesses. Fast, secure, and built to rank. By Andrei Neagoe."
     />
     <meta
       name="keywords"
-      content="web design, web development, React, Tailwind, portfolio, Monevo, Andrei Neagoe"
+      content="web design London, web development local business, custom website, SEO, Monevo, Andrei Neagoe"
     />
     <meta name="theme-color" content="#0B0B0F" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://monevo.tech" />
+
+    <!-- Open Graph -->
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="Monevo — Craft web design &amp; development" />
+    <meta property="og:title" content="Monevo — Web design for businesses ready to grow" />
     <meta
       property="og:description"
-      content="Craft web design and custom development for local businesses."
+      content="Handcrafted websites — fast, secure, and built to rank. One client at a time."
     />
-    <meta property="og:url" content="https://www.monevo.tech" />
+    <meta property="og:url" content="https://monevo.tech" />
+    <meta property="og:image" content="https://monevo.tech/og-image.png" />
+
+    <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
-    <title>Monevo — Craft web design &amp; development</title>
-    <script type="module" crossorigin src="/assets/index-DpQZrGPQ.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-UXKq5U1K.css">
+    <meta name="twitter:title" content="Monevo — Web design for businesses ready to grow" />
+    <meta name="twitter:description" content="Handcrafted websites — fast, secure, and built to rank." />
+
+    <title>Monevo — Web design for businesses ready to grow</title>
+    <script type="module" crossorigin src="/assets/index-B6IUYW1K.js"></script>
+    <link rel="modulepreload" crossorigin href="/assets/vendor-react-BZXS0ksf.js">
+    <link rel="modulepreload" crossorigin href="/assets/vendor-motion-CoTf3YOS.js">
+    <link rel="modulepreload" crossorigin href="/assets/vendor-icons-TsEqVNBB.js">
+    <link rel="stylesheet" crossorigin href="/assets/index-Cr57Ss1S.css">
   </head>
   <body>
     <div id="root"></div>

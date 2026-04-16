@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import Button from "./ui/Button";
-import ParticleField from "./ParticleField";
+import SplashCursor from "./SplashCursor";
 
 const HEADLINE = ["Web", "design", "for", "businesses", "ready", "to", "grow."];
 
@@ -24,8 +24,17 @@ const Hero = () => {
       id="hero"
       className="relative flex min-h-screen items-center overflow-hidden bg-transparent pt-28 pb-16 md:pt-0 md:pb-0"
     >
-      {/* ── Alive background ── */}
-      <ParticleField />
+      <SplashCursor
+        SIM_RESOLUTION={128}
+        DYE_RESOLUTION={1024}
+        DENSITY_DISSIPATION={4}
+        VELOCITY_DISSIPATION={2.5}
+        PRESSURE={0.08}
+        CURL={2}
+        SPLAT_RADIUS={0.18}
+        SPLAT_FORCE={5000}
+        COLOR_UPDATE_SPEED={8}
+      />
 
       <div className="relative z-10 mx-auto w-full max-w-7xl px-6 sm:px-8 lg:px-12">
         <motion.div

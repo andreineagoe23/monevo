@@ -2,11 +2,9 @@ import { useEffect, useRef } from "react";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 
 const ORBS = [
-  { x: 15, y: 25, size: 520, opacity: 0.13, duration: 18, delay: 0,  depth: 0.04 },
-  { x: 72, y: 18, size: 380, opacity: 0.10, duration: 22, delay: 3,  depth: 0.07 },
-  { x: 55, y: 65, size: 460, opacity: 0.09, duration: 26, delay: 6,  depth: 0.03 },
-  { x: 88, y: 55, size: 300, opacity: 0.11, duration: 20, delay: 9,  depth: 0.06 },
-  { x: 30, y: 75, size: 340, opacity: 0.08, duration: 24, delay: 12, depth: 0.05 },
+  { x: 15, y: 25, size: 520, opacity: 0.14, duration: 18, delay: 0, depth: 0.04 },
+  { x: 72, y: 18, size: 380, opacity: 0.11, duration: 22, delay: 3, depth: 0.07 },
+  { x: 55, y: 65, size: 460, opacity: 0.10, duration: 26, delay: 6, depth: 0.03 },
 ];
 
 const Orb = ({ orb, mouseX, mouseY, isMobile }) => {
@@ -24,9 +22,10 @@ const Orb = ({ orb, mouseX, mouseY, isMobile }) => {
         // Only apply parallax on non-mobile (no hover on touch)
         translateX: isMobile ? 0 : x,
         translateY: isMobile ? 0 : y,
-        background:
-          "radial-gradient(circle, oklch(0.82 0.14 80 / 1) 0%, transparent 70%)",
-        filter: "blur(72px)",
+        background: isMobile
+          ? "radial-gradient(circle, oklch(0.75 0.04 80 / 1) 0%, transparent 70%)"
+          : "radial-gradient(circle, oklch(0.80 0.09 80 / 1) 0%, transparent 70%)",
+        filter: "blur(110px)",
         opacity: orb.opacity,
         marginLeft: isMobile ? -(orb.size * 0.6) / 2 : -orb.size / 2,
         marginTop:  isMobile ? -(orb.size * 0.6) / 2 : -orb.size / 2,
@@ -75,7 +74,7 @@ const ParticleField = () => {
   }, [isMobile, rawX, rawY]);
 
   // On mobile render fewer orbs to save GPU
-  const orbs = isMobile ? ORBS.slice(0, 3) : ORBS;
+  const orbs = isMobile ? ORBS.slice(0, 2) : ORBS;
 
   return (
     <div
