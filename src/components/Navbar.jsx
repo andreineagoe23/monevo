@@ -1,129 +1,126 @@
-import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Moon, Sun, Menu, X } from "lucide-react";
+import { useTheme } from "../context/ThemeContext";
 
-const Navbar = ({ darkMode, toggleDarkMode }) => {
-  const [isOpen, setIsOpen] = useState(false);
+const navItems = [
+  { name: "Work", href: "#work" },
+  { name: "Services", href: "#services" },
+  { name: "Process", href: "#process" },
+  { name: "About", href: "#about" },
+  { name: "Contact", href: "#contact" },
+];
+
+const Logo = () => (
+  <div className="flex items-center gap-2">
+    <svg viewBox="0 0 64 64" className="h-7 w-7 flex-shrink-0" aria-hidden>
+      <rect width="64" height="64" rx="12" className="fill-ink-900 dark:fill-ink-800" />
+      <path
+        d="M14 48 V18 L32 38 L50 18 V48"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="5"
+        strokeLinecap="square"
+        strokeLinejoin="miter"
+        className="text-amber-400"
+      />
+    </svg>
+    <span className="font-display text-xl tracking-tightest sm:text-2xl">Monevo</span>
+  </div>
+);
+
+const Navbar = () => {
+  const { darkMode, toggleDarkMode } = useTheme();
+  const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    const onScroll = () => setScrolled(window.scrollY > 32);
+    onScroll();
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const navItems = [
-    { name: "Home", href: "#hero" },
-    { name: "About", href: "#about" },
-    { name: "Projects", href: "#projects" },
-    { name: "Services", href: "#services" },
-    { name: "Contact", href: "#contact" },
-  ];
-
-  const scrollToSection = (href) => {
-    const element = document.querySelector(href);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
-    }
-    setIsOpen(false);
+  const goTo = (href) => {
+    const el = document.querySelector(href);
+    if (el) el.scrollIntoView({ behavior: "smooth" });
+    setOpen(false);
   };
 
   return (
     <motion.nav
-      initial={{ y: -100 }}
-      animate={{ y: 0 }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      initial={{ y: -60, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.5 }}
+      className={`fixed inset-x-0 top-0 z-50 transition-colors duration-300 ${
         scrolled
-          ? darkMode
-            ? "bg-gray-900/90 backdrop-blur-md border-b border-gray-800"
-            : "bg-white/90 backdrop-blur-md border-b border-gray-200"
+          ? "border-b border-amber-500/20 bg-paper-50/80 backdrop-blur-md dark:bg-ink-950/80"
           : "bg-transparent"
       }`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          {/* Logo */}
-          <motion.div whileHover={{ scale: 1.05 }} className="flex-shrink-0">
-            <span className="text-2xl font-bold gradient-text">
-              Enso Digital
-            </span>
-          </motion.div>
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 sm:px-8 lg:px-12">
+        <button
+          onClick={() => goTo("#hero")}
+          className="flex items-center gap-2 text-ink-900 transition-colors duration-200 hover:text-amber-500 dark:text-paper-50 dark:hover:text-amber-400"
+          aria-label="Monevo home"
+        >
+          <Logo />
+        </button>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:block">
-            <div className="ml-10 flex items-baseline space-x-8">
-              {navItems.map((item) => (
-                <motion.button
-                  key={item.name}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => scrollToSection(item.href)}
-                  className="px-3 py-2 text-sm font-medium transition-colors duration-200 hover:text-blue-600"
-                >
-                  {item.name}
-                </motion.button>
-              ))}
-            </div>
-          </div>
-
-          {/* Dark Mode Toggle & Mobile Menu */}
-          <div className="flex items-center space-x-4">
-            <motion.button
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              onClick={toggleDarkMode}
-              className="p-2 rounded-lg transition-colors duration-200 hover:bg-gray-100 dark:hover:bg-gray-800"
+        <div className="hidden items-center gap-8 md:flex">
+          {navItems.map((item) => (
+            <button
+              key={item.name}
+              onClick={() => goTo(item.href)}
+              className="text-sm text-ink-900/80 transition-colors duration-200 hover:text-amber-500 dark:text-paper-50/80 dark:hover:text-amber-400"
             >
-              {darkMode ? (
-                <Sun className="h-5 w-5" />
-              ) : (
-                <Moon className="h-5 w-5" />
-              )}
-            </motion.button>
-
-            {/* Mobile menu button */}
-            <div className="md:hidden">
-              <motion.button
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setIsOpen(!isOpen)}
-                className="p-2 rounded-lg transition-colors duration-200 hover:bg-gray-100 dark:hover:bg-gray-800"
-              >
-                {isOpen ? (
-                  <X className="h-6 w-6" />
-                ) : (
-                  <Menu className="h-6 w-6" />
-                )}
-              </motion.button>
-            </div>
-          </div>
+              {item.name}
+            </button>
+          ))}
         </div>
 
-        {/* Mobile Navigation */}
-        {isOpen && (
+        <div className="flex items-center gap-2">
+          <button
+            onClick={toggleDarkMode}
+            className="rounded-full p-2 text-ink-900/70 transition-colors duration-200 hover:bg-ink-900/5 hover:text-amber-500 dark:text-paper-50/70 dark:hover:bg-paper-50/5 dark:hover:text-amber-400"
+            aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
+          >
+            {darkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+          </button>
+
+          <button
+            onClick={() => setOpen((v) => !v)}
+            className="rounded-full p-2 text-ink-900/70 transition-colors duration-200 hover:bg-ink-900/5 hover:text-amber-500 md:hidden dark:text-paper-50/70 dark:hover:bg-paper-50/5 dark:hover:text-amber-400"
+            aria-label="Toggle menu"
+            aria-expanded={open}
+          >
+            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
+        </div>
+      </div>
+
+      <AnimatePresence>
+        {open && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden"
+            className="overflow-hidden border-t border-amber-500/20 bg-paper-50/95 backdrop-blur-md md:hidden dark:bg-ink-950/95"
           >
-            <div className="px-2 pt-2 pb-3 space-y-1 border-t border-gray-200 dark:border-gray-700">
+            <div className="flex flex-col px-6 py-4">
               {navItems.map((item) => (
-                <motion.button
+                <button
                   key={item.name}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => scrollToSection(item.href)}
-                  className="block px-3 py-2 text-base font-medium w-full text-left transition-colors duration-200 hover:text-blue-600"
+                  onClick={() => goTo(item.href)}
+                  className="py-3 text-left font-display text-2xl tracking-tightest text-ink-900 transition-colors duration-200 hover:text-amber-500 dark:text-paper-50 dark:hover:text-amber-400"
                 >
                   {item.name}
-                </motion.button>
+                </button>
               ))}
             </div>
           </motion.div>
         )}
-      </div>
+      </AnimatePresence>
     </motion.nav>
   );
 };

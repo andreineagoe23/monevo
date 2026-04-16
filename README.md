@@ -1,141 +1,85 @@
-# Enso Digital - Portfolio Website
+# Monevo — Portfolio site
 
-A modern, responsive portfolio website for Enso Digital, a web development and design company. Built with React, Tailwind CSS, and Framer Motion.
+Single-page portfolio for **Monevo** (craft web design and custom development). Built with React, Vite, Tailwind CSS, Framer Motion, and React Router. Dark-first theme with a warm amber accent; output is built to `docs/` for **GitHub Pages**.
 
 ## Features
 
-- ✨ **Modern Design**: Clean, minimalist Japanese-inspired aesthetic
-- 🌙 **Dark/Light Mode**: Toggle between light and dark themes
-- 📱 **Responsive**: Mobile-friendly design that works on all devices
-- 🎭 **Animations**: Smooth transitions and animations with Framer Motion
-- 🚀 **Performance**: Optimized for speed and SEO
-- 📧 **Contact Form**: Functional contact form with validation
-- 🎨 **Gradient Backgrounds**: Beautiful animated gradient backgrounds
-- 📊 **Smooth Scrolling**: Smooth navigation between sections
+- Responsive layout (mobile through desktop)
+- Dark / light mode toggle (dark default), persisted in `localStorage`
+- Scroll-linked ambient background and section animations (Framer Motion)
+- Contact section with email, WhatsApp, and a validated form (wire your own endpoint when ready)
+- SEO-oriented meta tags in `index.html`
 
-## Tech Stack
+## Tech stack
 
-- **React 19** - Modern React with hooks
-- **Vite** - Fast build tool and dev server
-- **Tailwind CSS** - Utility-first CSS framework
-- **Framer Motion** - Animation library
-- **Lucide React** - Beautiful icons
-- **GitHub Pages** - Static site hosting
+- **React 19** — UI
+- **Vite 7** — dev server and production build
+- **Tailwind CSS 3** — styling and design tokens
+- **Framer Motion** — motion and scroll effects
+- **Lucide React** — icons
+- **React Router** — routing (`/` today; easy to add more routes later)
 
-## Sections
+## Project structure
 
-1. **Hero** - Full-screen introduction with animated background
-2. **About** - Company information and features
-3. **Projects** - Portfolio showcase with project cards
-4. **Services** - Service offerings with icons and descriptions
-5. **Contact** - Contact form and company information
-6. **Footer** - Links and additional information
+- `src/pages/Home.jsx` — main landing sections
+- `src/components/` — Navbar, Hero, Services, Projects, Process, About, Contact, Footer
+- `src/components/ui/` — shared primitives (Button, Card, Badge, Section, ParallaxBubbles, …)
+- `src/data/projects.js` — project list for the work grid
+- `public/` — static assets including `favicon.svg` and `CNAME` for custom domain
+- `docs/` — **production build output** (do not hand-edit; regenerate with `npm run build`)
 
-## Getting Started
+## Getting started
 
 ### Prerequisites
 
-- Node.js (v18 or higher)
-- npm or yarn
+- Node.js **20.19+** or **22.12+** (recommended for Vite 7)
 
-### Installation
-
-1. Clone the repository:
+### Install and dev
 
 ```bash
-git clone https://github.com/yourusername/enso-digital.git
-cd enso-digital
-```
-
-2. Install dependencies:
-
-```bash
+git clone https://github.com/andreineagoe23/monevo.git
+cd monevo
 npm install
-```
-
-3. Start the development server:
-
-```bash
 npm run dev
 ```
 
-4. Open your browser and navigate to `http://localhost:5173`
+Open `http://localhost:5173`.
 
-### Building for Production
+### Production build
 
 ```bash
 npm run build
 ```
 
-The built files will be in the `dist` directory.
+Assets are emitted to `docs/` (see `vite.config.js`). Commit `docs/` when deploying via GitHub Pages from the `docs` folder on `main`.
 
-## Deployment
-
-### GitHub Pages
-
-1. Update the `homepage` field in `package.json` with your GitHub username:
-
-```json
-"homepage": "https://yourusername.github.io/enso-digital"
-```
-
-2. Deploy to GitHub Pages:
+### Preview the production build
 
 ```bash
-npm run deploy
+npm run preview
 ```
 
-This will build the project and deploy it to the `gh-pages` branch.
+## Deployment (GitHub Pages)
 
-### Other Hosting Platforms
-
-The project can be deployed to any static hosting platform:
-
-- **Vercel**: Connect your GitHub repository
-- **Netlify**: Drag and drop the `dist` folder
-- **AWS S3**: Upload the `dist` folder contents
+- `package.json` includes `"homepage": "https://www.monevo.tech"`.
+- `public/CNAME` contains `www.monevo.tech` for a custom domain; it is copied into `docs/` on build.
+- Repository Pages settings: publish from the **`/docs`** folder on your default branch (or adjust to match your workflow).
 
 ## Customization
 
-### Colors and Branding
+- **Contact email** — `src/components/Contact.jsx` (`EMAIL` constant) and mailto in `src/components/Footer.jsx`
+- **Copy and sections** — files under `src/components/` and `src/pages/Home.jsx`
+- **Projects** — `src/data/projects.js`
+- **Colors / fonts** — `tailwind.config.js` and `src/index.css`
 
-Update the gradient colors in `tailwind.config.js`:
+## Scripts
 
-```javascript
-theme: {
-  extend: {
-    // Customize your gradients here
-  }
-}
-```
-
-### Content
-
-- **Hero Section**: Update the tagline in `src/components/Hero.jsx`
-- **About Section**: Modify company description in `src/components/About.jsx`
-- **Projects**: Add your projects in `src/components/Projects.jsx`
-- **Services**: Update services in `src/components/Services.jsx`
-- **Contact**: Change contact information in `src/components/Contact.jsx`
-
-### Images
-
-Replace placeholder images in the `public` folder or update image URLs in the components.
-
-## Performance
-
-The website is optimized for performance with:
-
-- Lazy loading images
-- Optimized animations
-- Minimal bundle size
-- SEO-friendly structure
-
-## Browser Support
-
-- Chrome (latest)
-- Firefox (latest)
-- Safari (latest)
-- Edge (latest)
+| Command        | Description              |
+| -------------- | ------------------------ |
+| `npm run dev`  | Start Vite dev server    |
+| `npm run build`| Build to `docs/`         |
+| `npm run preview` | Preview production build |
+| `npm run lint` | Run ESLint               |
 
 ## License
 
@@ -143,11 +87,9 @@ This project is open source and available under the [MIT License](LICENSE).
 
 ## Contact
 
-For questions or support, please contact:
-
-- Email: hello@ensodigital.com
-- Website: [ensodigital.com](https://ensodigital.com)
+- **Email:** [neagoeandrei23@gmail.com](mailto:neagoeandrei23@gmail.com)
+- **Site:** [monevo.tech](https://www.monevo.tech)
 
 ---
 
-Built with ❤️ by Enso Digital
+Built by Andrei Neagoe
