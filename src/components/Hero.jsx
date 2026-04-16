@@ -1,16 +1,8 @@
 import { motion } from "framer-motion";
 import Button from "./ui/Button";
+import ParticleField from "./ParticleField";
 
-const HEADLINE = [
-  "Web",
-  "design",
-  "and",
-  "builds",
-  "for",
-  "the",
-  "long",
-  "game.",
-];
+const HEADLINE = ["Web", "design", "for", "businesses", "ready", "to", "grow."];
 
 const scrollTo = (id) => {
   const el = document.querySelector(id);
@@ -32,7 +24,10 @@ const Hero = () => {
       id="hero"
       className="relative flex min-h-screen items-center overflow-hidden bg-transparent pt-28 pb-16 md:pt-0 md:pb-0"
     >
-      <div className="relative mx-auto w-full max-w-7xl px-6 sm:px-8 lg:px-12">
+      {/* ── Alive background ── */}
+      <ParticleField />
+
+      <div className="relative z-10 mx-auto w-full max-w-7xl px-6 sm:px-8 lg:px-12">
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
@@ -55,7 +50,7 @@ const Hero = () => {
               variants={wordVariants}
               className="mr-[0.25em] inline-block"
             >
-              {word === "long" ? (
+              {word === "grow." ? (
                 <span className="italic text-amber-500 dark:text-amber-400">
                   {word}
                 </span>
@@ -72,8 +67,8 @@ const Hero = () => {
           transition={{ delay: 0.9, duration: 0.6 }}
           className="mt-10 max-w-xl text-base leading-relaxed text-muted-light dark:text-muted-dark md:text-lg"
         >
-          Handcrafted web design and custom development for local businesses
-          that actually need to convert. One client at a time, end to end.
+          Handcrafted websites — fast, secure, and built to rank.
+          One client at a time.
         </motion.p>
 
         <motion.div
@@ -87,10 +82,10 @@ const Hero = () => {
             onClick={() => scrollTo("#work")}
             showArrow
           >
-            See work
+            View work
           </Button>
           <Button variant="ghost" onClick={() => scrollTo("#contact")}>
-            Let&rsquo;s talk
+            Start a project
           </Button>
         </motion.div>
       </div>
