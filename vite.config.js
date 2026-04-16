@@ -8,5 +8,17 @@ export default defineConfig({
     outDir: "docs",
     assetsDir: "assets",
     emptyOutDir: true,
+    // Raise the chunk warning threshold slightly
+    chunkSizeWarningLimit: 600,
+    rollupOptions: {
+      output: {
+        // Split vendor libs into separate cacheable chunks
+        manualChunks: {
+          "vendor-react": ["react", "react-dom", "react-router-dom"],
+          "vendor-motion": ["framer-motion"],
+          "vendor-icons": ["lucide-react"],
+        },
+      },
+    },
   },
 });
