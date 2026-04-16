@@ -1058,9 +1058,6 @@ function SplashCursor({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const isMobile = typeof window !== 'undefined' && window.matchMedia('(hover: none)').matches;
-  if (isMobile) return null;
-
   return (
     <div style={{
       position: 'fixed', top: 0, left: 0,

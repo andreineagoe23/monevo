@@ -96,7 +96,10 @@ const Particles = ({
     const container = containerRef.current;
     if (!container) return;
 
-    const renderer = new Renderer({ dpr: pixelRatio, depth: false, alpha: true });
+    const isMobile = window.matchMedia('(hover: none)').matches;
+    const count = isMobile ? Math.floor(particleCount * 0.4) : particleCount;
+
+    const renderer = new Renderer({ dpr: isMobile ? 1 : pixelRatio, depth: false, alpha: true });
     const gl = renderer.gl;
     container.appendChild(gl.canvas);
     gl.clearColor(0, 0, 0, 0);
@@ -105,9 +108,7 @@ const Particles = ({
     camera.position.set(0, 0, cameraDistance);
 
     const resize = () => {
-      const width = container.clientWidth;
-      const height = container.clientHeight;
-      renderer.setSize(width, height);
+      renderer.setSize(container.clientWidth, container.clientHeight);
       camera.perspective({ aspect: gl.canvas.width / gl.canvas.height });
     };
     window.addEventListener('resize', resize, false);
@@ -120,9 +121,8 @@ const Particles = ({
         y: -(((e.clientY - rect.top) / rect.height) * 2 - 1),
       };
     };
-    if (moveParticlesOnHover) container.addEventListener('mousemove', handleMouseMove);
+    if (moveParticlesOnHover && !isMobile) container.addEventListener('mousemove', handleMouseMove);
 
-    const count = particleCount;
     const positions = new Float32Array(count * 3);
     const randoms = new Float32Array(count * 4);
     const colors = new Float32Array(count * 3);
@@ -154,7 +154,7 @@ const Particles = ({
       uniforms: {
         uTime: { value: 0 },
         uSpread: { value: particleSpread },
-        uBaseSize: { value: particleBaseSize * pixelRatio },
+        uBaseSize: { value: (isMobile ? particleBaseSize * 0.7 : particleBaseSize) * (isMobile ? 1 : pixelRatio) },
         uSizeRandomness: { value: sizeRandomness },
         uAlphaParticles: { value: alphaParticles ? 1 : 0 },
       },
@@ -165,33 +165,35 @@ const Particles = ({
     const mesh = new Mesh(gl, { mode: gl.POINTS, geometry, program });
 
     let animationFrameId;
-    let lastTime = performance.now();
-    let elapsed = 0;
 
-    const update = t => {
-      animationFrameId = requestAnimationFrame(update);
-      elapsed += (t - lastTime) * speed;
-      lastTime = t;
-      program.uniforms.uTime.value = elapsed * 0.001;
-
-      if (moveParticlesOnHover) {
-        mesh.position.x = -mouseRef.current.x * particleHoverFactor;
-        mesh.position.y = -mouseRef.current.y * particleHoverFactor;
-      }
-
-      if (!disableRotation) {
-        mesh.rotation.x = Math.sin(elapsed * 0.0002) * 0.1;
-        mesh.rotation.y = Math.cos(elapsed * 0.0005) * 0.15;
-        mesh.rotation.z += 0.01 * speed;
-      }
-
+    if (isMobile) {
+      // Single render — no RAF loop, zero ongoing GPU cost
       renderer.render({ scene: mesh, camera });
-    };
-    animationFrameId = requestAnimationFrame(update);
+    } else {
+      let lastTime = performance.now();
+      let elapsed = 0;
+      const update = t => {
+        animationFrameId = requestAnimationFrame(update);
+        elapsed += (t - lastTime) * speed;
+        lastTime = t;
+        program.uniforms.uTime.value = elapsed * 0.001;
+        if (moveParticlesOnHover) {
+          mesh.position.x = -mouseRef.current.x * particleHoverFactor;
+          mesh.position.y = -mouseRef.current.y * particleHoverFactor;
+        }
+        if (!disableRotation) {
+          mesh.rotation.x = Math.sin(elapsed * 0.0002) * 0.1;
+          mesh.rotation.y = Math.cos(elapsed * 0.0005) * 0.15;
+          mesh.rotation.z += 0.01 * speed;
+        }
+        renderer.render({ scene: mesh, camera });
+      };
+      animationFrameId = requestAnimationFrame(update);
+    }
 
     return () => {
       window.removeEventListener('resize', resize);
-      if (moveParticlesOnHover) container.removeEventListener('mousemove', handleMouseMove);
+      if (moveParticlesOnHover && !isMobile) container.removeEventListener('mousemove', handleMouseMove);
       cancelAnimationFrame(animationFrameId);
       if (container.contains(gl.canvas)) container.removeChild(gl.canvas);
     };
